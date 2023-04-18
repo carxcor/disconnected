@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>(dis)connect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+      #eventarea {
+        width: 100%;
+        height: 50vh;
+        background-color: #f0f0f0;
+        text-align: center;
+        font-size: 24px;
+        line-height: 50vh;
+        color: #666;
+      }
+
+      #resultarea {
+        width: 100%;
+        height: 100px;
+        background-color: #fff;
+        text-align: center;
+        font-size: 24px;
+        line-height: 100px;
+        color: #333;
+      }
+
+      #resultarea h3 {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h2>"(dis)connect"</h2>
+      <h4>Installation and Performance by Carlos Cordeiro</h4>
+      <h4>Tap, hold (longtouch), drag or swipe the area below</h4>
+
+      <div id="eventarea"></div>
+      <div id="resultarea"><h3>(waiting for event)</h3></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+
+    <script>
+      // Establish WebSocket connection to Pure Data patch
+  var socket = io("https://curvy-frogs-poke-95-208-248-66.loca.lt);
+
+  // Wait for connection to be established
+  socket.on("connect", function () {
+    console.log("WebSocket connection established.");
+  });
+
+  // Handle errors
+  socket.on("connect_error", function (error) {
+    console.log("WebSocket error: ", error);
+  });
+
+  // Handle incoming messages
+  socket.on("message", function (message) {
+    console.log("WebSocket message received: ", message);
+  });
+
+  // Function to send interaction data to Pure Data patch over WebSocket
+  function sendInteractionData(x, y, type) {
+    socket.emit("interaction", { x: x, y: y, type: type });
+  }
+
+      (function () {
+        var target = document.getElementById("eventarea"),
+          result = document.getElementById("resultarea");
+
+        // Initialize Hammer.js
+        var hammer = new Hammer(target);
+
+        // Set up event listeners
+        hammer.on("tap", function (e) {
+          result.innerHTML = "<h3>You tapped!</h3>";
+          sendInteractionData(e.center.x, e.center.y, "tap");
+        });
+
+        hammer.on("doubletap", function (e) {
+          result.innerHTML = "<h3>You double-tapped!</h3>";
+          sendInteractionData(e.center.x, e.center.y, "doubletap");
+        });
+
+        hammer.on("press", function (e) {
+          result.innerHTML = "<h3>You touched for a long time!</h3>";
+          sendInteractionData(e.center.x, e.center.y, "longtouch");
+        });
+
+        hammer.on("swipeleft", function (e) {
+          result.innerHTML = "<h3>You swiped left</h3>";
+          sendInteractionData(e.center.x, e.center.y, "swipeleft");
+        });
+
+        hammer.on("swiperight", function (e) {
+          result.innerHTML = "<h3>You swiped right</h3>";
+          sendInteractionData(e.center.x, e.center.y, "swiperight");
+        });
+
+        hammer.on("swipeup", function (e) {
+          result.innerHTML = "<h3>You swiped up</h3>";
+          sendInteractionData(e.center.x, e.center.y, "swipeup");
+        });
+
+        hammer.on("swipedown", function (e) {
+          result.innerHTML = "<h3>You swiped down</h3>";
+          sendInteractionData(e.center.x, e.center.y, "swipedown");
+        });
+
+        hammer.on("pan", function (e) {
+          result.innerHTML = "<h3>You dragged!</h3>";
+          sendInteractionData(e.center.x, e.center.y, "drag");
+        });
+      })();
+    </script>
+  </body>
+</html>
